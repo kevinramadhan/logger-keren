@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { CorrelationService } from 'src/correlation/correlation.service';
@@ -40,7 +40,8 @@ export class LoggerMiddleware implements NestMiddleware {
     };
 
     getResponseLog = (res: Response) => {
-        const logger = this.loggerKeren;
+        const logger = new Logger(LoggerMiddleware.name);
+        const loggerKeren = this.loggerKeren;
         const rawResponse = res.write;
         const rawResponseEnd = res.end;
         const chunkBuffers = [];
@@ -90,7 +91,7 @@ export class LoggerMiddleware implements NestMiddleware {
             try {
                 body = JSON?.parse(body);
             } catch (error) {
-                logger.warn(null, 'Warning: Response body is string!');
+                loggerKeren.warn(null, 'Warning: Response body is string!');
             }
 
             // Set custom header for response
@@ -104,7 +105,8 @@ export class LoggerMiddleware implements NestMiddleware {
                 },
             };
 
-            logger.log(responseLog, 'Response Payload');
+            loggerKeren.log(responseLog, 'Response Payload');
+            logger.log('---------------------------- END LOG REQUEST ----------------------------');
 
             // res.end() is satisfied after passing in restArgs as params
             // Doing so creates 'end' event to indicate that the entire body has been received.
